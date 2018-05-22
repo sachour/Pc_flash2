@@ -1,5 +1,5 @@
 ! Author: Sofiane Achour
-! Description: multiphase Ratchford-Rice Calculation
+! Description: multiphase flash Calculation with capillary pressure
   ! To run this code on a mac, follow the follwing steps:
     ! 1. open the terminal
     ! 2. paste the following: cd <filepath> where filepath is the project directory
