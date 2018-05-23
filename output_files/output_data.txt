@@ -1,0 +1,52 @@
+ Your 2 phase model is stable
+
+ Number of components: 
+  2
+
+ The original composition the mixture is the following: 
+
+                    z
+   0.9350000000000001
+   0.0650000000000000
+
+
+    Phase molar fractions
+      0.7965697229866757     0.2034302770133243
+
+            Molar volume
+    0.0009371213901008   0.0005645835478164
+
+ The composition of each phase is the following: 
+
+                 xi 1                xi 2
+   0.9872898397601195  0.7302492432087292
+   0.0127101602398806  0.2697507567912708
+
+
+ The Fugacity of each phase is the following: 
+
+                  f 1 (psi                 f 2 (psi
+    3.0835275708000097E+01   3.0835275085360514E+01
+    2.2193309639487090E-02   2.2193310869890737E-02
+
+
+ The value of the objective function is the following: 
+    3.8499072368743565E+00
+    2.8441236245462376E-01
+    7.2076263085759873E-02
+    2.1478890481832380E-02
+    6.8213766118381258E-03
+    2.2376483478652176E-03
+    7.4864749825209742E-04
+    2.5390638302091872E-04
+    8.6985290331131893E-05
+    3.0030435157701874E-05
+    1.0429372238274226E-05
+    3.6387068482746088E-06
+    1.2739977441889039E-06
+    4.4726413506168683E-07
+    1.5734563030278537E-07
+    5.5440293689201781E-08
+
+
+ The flash calculation converged after  16 iterations.

@@ -26,9 +26,9 @@ Temperature: (units can only be degC, degF, degR, degK)
 units : degK
 value : 621.8d0
 
-Pressure : (units can only be psia, kPa, bar, atm, Pa)
-units : Pa
-value : 4.0d6
+Pressure : (units can only be bar)
+units : bar
+value : 4.0d1
 
 Number of components = 2
 Max number of phases = 2
@@ -42,9 +42,9 @@ Tc (degK)
 507.60d0
 871.16d0
 
-Pc(Pa)
-30.25d5
-5.53d5
+Pc(bar)
+30.25d0
+5.53d0
 
 omega
 0.3010d0

@@ -93,6 +93,7 @@ program SS_flash
   end if
 
   if (Tunit == "degK") R = 8.3144598d0
+  if ( Punit=="bar" ) R = 8.3144598d-5
   if (Tunit == "degR") R = 10.7316d0
 
 
@@ -185,6 +186,21 @@ print *, 'omega'
 print *, w
 print *, "BIP"
 call print_matrix(BIP,Nc,Nc)
+
+print *, 'max iteration for PT flash'
+print *, maxitPTSS
+print *, 'max iteration for Stability analysis'
+print *, MaxitSA
+print *, 'max iteration for K-flash'
+print *, MaxitRR
+
+print *, 'tolerance criterion for PT flash'
+print *, MaxTolPTSS
+print *, 'tolerance criterion for Stability analysis'
+print *, MaxTolSA
+print *, 'tolerance criterion for K-flash'
+print *, MaxTolRR
+
 ! !________________________________________________________________
 ! Stab Calc
 
@@ -331,6 +347,7 @@ subroutine PT_flash(Nc, Npmax,linsrch,MaxitSA,MaxitRR,MaxitPTSS,&
   integer :: i,j,ios,err,Ns
   logical :: unstable
   ! Print *, 'Radius = ',Radius
+
   do j = 1, Npmax, 1
     logPcap(j) = DLOG(1d0+Pcap(j)/P)
   end do
@@ -345,10 +362,15 @@ subroutine PT_flash(Nc, Npmax,linsrch,MaxitSA,MaxitRR,MaxitPTSS,&
   print *, lnFug(:,j)
 
   call Parachor(Tc,Pc,w,Nc,Par)
-
+  ! print *, 'pore r',Radius
+  print *, 'parachors',par
+  ! print *, Z_z(j)
+  ! print *, z,T,P,Tc,Pc,w,BIP,Par,Radius,lnFug(:,j),Z_z(j),R,&
+  !                                 & MaxitSA,MaxTolSA,Nc
   call SinglePhase_Stability_check(z,T,P,Tc,Pc,w,BIP,Par,Radius,lnFug(:,j),Z_z(j),R,&
-                                  &, unstable,x,Nc,MaxitSA,MaxTolSA)
-
+                                  & MaxitSA,MaxTolSA,Nc,unstable,xi)
+                                ! (z,T,P,Tc,Pc,w,BIP,Par,Radius,lnPhi,Z_CF_b,R, &
+                                    ! & MaxitSA,MaxTolSA,Nc,unstable,xi)
   ! print *,  '__________________________________'
   if ( unstable ) then
 
@@ -539,17 +561,17 @@ subroutine Wilson(T,P,Tc,Pc,w,Nc,K)
   end do Wilson_corel
 end subroutine Wilson
 
-subroutine Parachor(Tc,Pc,w,Nc,Par)
+subroutine Parachor(Tc,Pc,w,Nc,Par) !Correlation from Zuo and Stenby 1997
   implicit none
   integer ,intent(in):: Nc
-  Real*8, intent(in) ::  Tc(Nc),Pc(Nc),w(Nc)
-  Real*8, intent(out) :: Par(Nc)
+  Real*8, intent(in) ::  Tc(Nc),Pc(Nc),w(Nc) ! Kelvin, bar
+  Real*8, intent(out) :: Par(Nc)! (mN/m)^(1/3.66) * m^3/mol
   integer :: i
 
   ! print *, 'T = ',T
   ! print *, 'P = ',P
   Parachor_corel: do i = 1, Nc, 1
-    Par(i) = (8.21307d0+1.97473d0*w(i))*(Tc(i)**1.03406d0)*(Pc(i)**(-0.82636d0))*1.d-6
+    Par(i) = (8.21307d0+1.97473d0*w(i))*(Tc(i)**1.03406d0)*(Pc(i)**(-0.82636d0))*1.d-6 !(mN/m)^(1/3.66) * m^3/mol
   end do Parachor_corel
 
 end subroutine Parachor
@@ -558,36 +580,36 @@ end subroutine Parachor
 subroutine Calc_Pc(x,rhox,Nc,Par,rhoz,zi,radius,Pcap)
   implicit none
   integer,intent(in) :: Nc
-  Real*8, intent(in) :: x(Nc),rhox,Par(Nc),rhoz,zi(Nc),radius
+  Real*8, intent(in) :: x(Nc),rhox,Par(Nc),rhoz,zi(Nc),radius ! Radius has units of nanometers
   Real*8,intent(out) :: Pcap
   Real*8:: IFT
 
-  integer :: n,i,iter
+  integer :: i
 
-  ! print *, 'x',x
-  ! print *, 'parachors',par
-  ! print *, 'bulk density',rhoz
-  ! print *, 'bulk composition',zi
-  ! print *, 'radius',radius
-  ! print *, 'This is the value of the ideal gas constant',R
+  print *, 'x',x
+  print *, 'parachors',par
+  print *, 'bulk density',rhoz
+  print *, 'bulk composition',zi
+  print *, 'radius',radius
+
   ! Pjk = (/P,P/)
 
   ! print *, 'Phase input pressures',P,ID
-
+  IFT = 0d0
     calc_IFT: do i = 1, Nc, 1
       IFT = IFT+Par(i)*(zi(i)*rhoz-x(i)*rhox)
+      print *, Par(i)*(zi(i)*rhoz-x(i)*rhox)
     end do calc_IFT
-    ! IFT = IFT**(3.6d0)
-    ! print *, 'IFT',IFT**3.6d0,IFT
+
     if ( IFT.gt.0d0 ) then
-      IFT = IFT**(3.88d0)
-      ! print *, 'IFT was gt 0'
+      IFT = IFT**(3.88d0) ! units are mN/m
+
     else
       IFT = -(-IFT)**(3.88d0)
-      ! print *, 'IFTIFT was lt 0'
-    end if
-    Pcap = 2.d0*IFT/radius
 
+    end if
+    Pcap = 2.d0*IFT/radius*1.d1
+  print *, 'IFT', IFT
 
 end subroutine Calc_Pc
 !
@@ -790,7 +812,7 @@ subroutine Calc_Mixture_Ln_Fug_coef(Tc,Pc,w,T,P,BIP,x,lnFug,Z,Nc,ID)
 end subroutine Calc_Mixture_Ln_Fug_coef
 
 subroutine SinglePhase_Stability_check(z,T,P,Tc,Pc,w,BIP,Par,Radius,lnPhi,Z_CF_b,R, &
-                                        & unstable,xi,Nc,MaxitSA,MaxTolSA)
+                                        & MaxitSA,MaxTolSA,Nc,unstable,xi)
   implicit none
 
   integer, parameter :: Ng = 2! number of guesses
@@ -803,6 +825,9 @@ subroutine SinglePhase_Stability_check(z,T,P,Tc,Pc,w,BIP,Par,Radius,lnPhi,Z_CF_b
   Real*8 :: lnFug(Nc,Ng),x(Nc,Ng),yi(Nc,Ng),residuals,sumyi(Ng),K(Nc),Z_CF,&
             & rtAi(Nc),bi(Nc),temp1,temp2,di(Nc),Pcap(Ng),rhox,rhoz
   integer :: i,j,iter
+  ! print *, Nc,MaxitSA
+  ! print *, T,P,Tc,Pc,w,BIP,z,Par,&
+  !                     & Radius,lnPhi,Z_CF_b,R,MaxTolSA
   iter = 0
   sumyi = (/(0d0,j = 1,Ng)/)
   rhoz = P/(Z_CF_b*R*T)
@@ -831,14 +856,14 @@ subroutine SinglePhase_Stability_check(z,T,P,Tc,Pc,w,BIP,Par,Radius,lnPhi,Z_CF_b
 
   end do normalizex
 
-  calc_Pcapj: do i = 1, Ng, 1
+  calc_Pcapj: do j = 1, Ng, 1
     call Calc_Mixture_Ln_Fug_coef(Tc,Pc,w,T,P,BIP,x(:,j),lnFug(:,j),Z_CF,Nc,0)
     rhox = P/(Z_CF*R*T)
-    ! print *, rhox
+    print *, rhox,rhoz
     call Calc_Pc(x(:,j),rhox,Nc,Par,rhoz,z,radius,Pcap(j))
 
   end do calc_Pcapj
-  ! print *, 'Capillary pressure', Pcap
+  print *, 'Capillary pressure', Pcap
   residuals = 1d0
 
   do while ((residuals.ge.MaxTolSA).and.(iter.lt.MaxitSA))
@@ -899,7 +924,6 @@ subroutine SinglePhase_Stability_check(z,T,P,Tc,Pc,w,BIP,Par,Radius,lnPhi,Z_CF_b
   end do
 
 end subroutine SinglePhase_Stability_check
-
 
 subroutine MultiPhase_Stability_check(z,T,P,Tc,Pc,w,BIP,lnPhi,unstable,xi,Nc,MaxitSA,MaxTolSA)
   implicit none
