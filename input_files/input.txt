@@ -1,0 +1,55 @@
+Line search flag: (equals to 1 if linesearch should be activated, 0 otherwise)
+0
+
+Convergence criterion for K-flash
+1.d-7
+
+Maximum iteration for K-Flash
+1000
+
+Convergence criterion for Stability analysis(SA)
+1.d-7
+
+Maximum iterations for SA
+10
+
+Convergence criterion for SS PT flash
+1.d-7
+
+Maximum iterations for SS PT flash
+10000
+
+Radius of capillary tube: (units should be in nm)
+value : 10.d0
+
+Temperature: (units can only be degC, degF, degR, degK)
+units : degK
+value : 621.8d0
+
+Pressure : (units can only be psia, kPa, bar, atm, Pa)
+units : Pa
+value : 4.0d6
+
+Number of components = 2
+Max number of phases = 2
+
+zi  (units can be fraction or percentage)
+units : fraction
+0.935d0
+0.065d0
+
+Tc (degK)
+507.60d0
+871.16d0
+
+Pc(Pa)
+30.25d5
+5.53d5
+
+omega
+0.3010d0
+1.4678d0
+
+BIP
+0.0d0 0.0d0
+0.d0 0.00d0
